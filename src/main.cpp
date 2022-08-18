@@ -72,7 +72,7 @@ int main(){
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
-
+    
     srand( time(NULL) );
     Shader ourShader("shader/vShader.vs", "shader/fShader.fs");
 
@@ -89,6 +89,23 @@ int main(){
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
+        ImGui::Begin("som");   
+        ImGui::Text("iter, %d", iter);
+        ImGui::Text("radius, %f", neighbor);
+        ImGui::Text("learning_rate, %f", n_learning_rate);
+        for(int i = 0; i < num_color_type; i++){
+
+            ImGui::TextColored(ImVec4(dataset[i].r, dataset[i].g, dataset[i].b, 255), "color");
+        }
+        if(ImGui::Button("STSRT"))
+        {
+            go = 1;
+        } 
+        if(ImGui::Button("STOP")){
+            stop = !stop;
+        }
+
+        ImGui::End();
         processInput(window);
         
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -97,7 +114,7 @@ int main(){
         ourShader.use();
 
 		MatrixStack model;
-        if(!is_som_finished && go == 1) {
+        if(!is_som_finished && go == 1 && stop) {
             SOM_IterateOnce();
         }
 

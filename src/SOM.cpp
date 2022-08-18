@@ -12,18 +12,20 @@ int go = 0;
 bool is_som_finished = false;
 const int map_width = 200;
 const int map_height = 200;
-const int max_iter = 50000;
+const int max_iter = 20000;
 const int num_color_type = 20;
 int iter = 0;
-double factor = 0.1;
-double scale = 100;
-
+bool stop = true;
+double learning_rate = 0.1;
+double radius = 100;
+double n_learning_rate = 0.1;
+double neighbor = 100;
 Color** createMap(int width, int height);
 Color* createInputDataset(int size);
 void destroyMap(Color** lattice, int width, int height);
 void destroyInputDataset(Color* dataset, int size);
 bool isInNeighborhood(glm::ivec2 bmuIdx, glm::ivec2 nodeIdx, double radius);
-void updateNode(Color** lattice, glm::ivec2 bmuIdx, glm::ivec2 nodeIdx, double scale, double factor);
+void updateNode(Color** lattice, Color nowInput, glm::ivec2 bmuIdx, glm::ivec2 nodeIdx, double radius, double learning_rate);
 const Color& getInput(Color* dataset, int size);
 double compute(int iter, double fun);
 double computeSacle(double sigma, double dist);
@@ -41,8 +43,8 @@ void SOM_IterateOnce() {
     // 1. Get one input from the dataset
     // 2. Find BMU
     // 3. Update BMU and the neighbors
-    double n_factor = compute(iter, factor);
-    double neighbor = compute(iter, scale);
+    n_learning_rate = compute(iter, learning_rate);
+    neighbor = compute(iter, radius);
     //cout << neighbor <<endl;
     const Color& nowInput = getInput(dataset, num_color_type);
     double minDist = -1.0;
@@ -55,6 +57,8 @@ void SOM_IterateOnce() {
             
             if(minDist < 0.0){
                 minDist = tmp;
+                bmu.x = 0;
+                bmu.y = 0;
             }else{
                 if(minDist > tmp){
                     minDist = tmp;
@@ -73,8 +77,8 @@ void SOM_IterateOnce() {
             double squaredDist = static_cast<double>(diff.x * diff.x + diff.y * diff.y);
 
             if( isInNeighborhood(bmu, node, neighbor)){
-                double n_scale = computeSacle(neighbor,squaredDist);
-                updateNode(lattice, bmu, node, n_scale, n_factor);
+                double n_radius = computeSacle(neighbor,squaredDist);
+                updateNode(lattice, nowInput, bmu, node, n_radius, n_learning_rate);
             }
         }
     }
@@ -135,12 +139,16 @@ bool isInNeighborhood(glm::ivec2 bmuIdx, glm::ivec2 nodeIdx, double radius) {
     return false;
 }
 
-void updateNode(Color** lattice, glm::ivec2 bmuIdx, glm::ivec2 nodeIdx, double scale, double factor) {
+void updateNode(Color** lattice, Color nowInput, glm::ivec2 bmuIdx, glm::ivec2 nodeIdx, double radius, double learning_rate) {
     const Color& bmu = lattice[bmuIdx.x][bmuIdx.y];
     Color& node = lattice[nodeIdx.x][nodeIdx.y];
-    node.r = node.r + scale * factor * (bmu.r - node.r);
-    node.g = node.g + scale * factor * (bmu.g - node.g);
-    node.b = node.b + scale * factor * (bmu.b - node.b);
+    node.r = node.r + radius * learning_rate * (nowInput.r - node.r);
+    node.g = node.g + radius * learning_rate * (nowInput.g - node.g);
+    node.b = node.b + radius * learning_rate * (nowInput.b - node.b);
+
+    // node.r = node.r + radius * learning_rate * (bmu.r - node.r);
+    // node.g = node.g + radius * learning_rate * (bmu.g - node.g);
+    // node.b = node.b + radius * learning_rate * (bmu.b - node.b);
 }
 
 const Color& getInput(Color* dataset, int size) {
