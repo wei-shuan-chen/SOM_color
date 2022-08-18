@@ -27,7 +27,8 @@ void destroyInputDataset(Color* dataset, int size);
 bool isInNeighborhood(glm::ivec2 bmuIdx, glm::ivec2 nodeIdx, double radius);
 void updateNode(Color** lattice, Color nowInput, glm::ivec2 bmuIdx, glm::ivec2 nodeIdx, double radius, double learning_rate);
 const Color& getInput(Color* dataset, int size);
-double compute(int iter, double fun);
+double computerate(int iter, double fun);
+double computeradius(int iter, double fun);
 double computeSacle(double sigma, double dist);
 
 void SOM_Create() {
@@ -43,8 +44,8 @@ void SOM_IterateOnce() {
     // 1. Get one input from the dataset
     // 2. Find BMU
     // 3. Update BMU and the neighbors
-    n_learning_rate = compute(iter, learning_rate);
-    neighbor = compute(iter, radius);
+    n_learning_rate = computerate(iter, learning_rate);
+    neighbor = computeradius(iter, radius);
     //cout << neighbor <<endl;
     const Color& nowInput = getInput(dataset, num_color_type);
     double minDist = -1.0;
@@ -69,7 +70,6 @@ void SOM_IterateOnce() {
         }
     }
     // renew winner point and neighnorhood
-
     for(int i = 0; i < map_width; i++){
         for(int j = 0; j < map_height; j++){
             glm::ivec2 node = glm::ivec2(i,j);
@@ -155,9 +155,13 @@ const Color& getInput(Color* dataset, int size) {
     int num = rand() % size;
     return dataset[num];
 }
-double compute(int iter, double fun){
+double computeradius(int iter, double fun){
     double lamda = ((double)(max_iter))/ log(fun);
     double sigma = fun*exp(-1* ((double)iter)/ lamda);
+    return sigma;
+}
+double computerate(int iter, double fun){
+    double sigma = fun*exp(-1* ((double)iter)/ ((double)(max_iter)));
     return sigma;
 }
 double computeSacle(double sigma, double dist){
