@@ -3,6 +3,7 @@
 ###### 第一次嘗試SOM ######
 
 ### 初始化
+
 * lattice是200 * 200隨機生成的亂數顏色
 * inputdata也是隨機生成的20種顏色
 * 總迭代次數為20000
@@ -14,8 +15,10 @@
 	![](./image/start.png)
 
 ### 開始執行
-	![](./image/mid.png)
+
+![](./image/mid.png)
 
 ### 結果
 
+![](./image/end.png)
 
