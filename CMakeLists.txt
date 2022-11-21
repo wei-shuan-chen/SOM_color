@@ -8,8 +8,8 @@ add_subdirectory(ext/glm)
 
 add_executable(SOM)
 
-include("cmake/BuildGlad.cmake")
 include("cmake/BuildImgui.cmake")
+include("cmake/BuildGlad.cmake") #相對於專案根目錄的路徑
 
 set_target_properties(SOM
     PROPERTIES
