@@ -12,7 +12,7 @@ int go = 0;
 bool is_som_finished = false;
 const int map_width = 200;
 const int map_height = 200;
-const int max_iter = 20000;
+int max_iter = 20000;
 const int num_color_type = 20;
 int iter = 0;
 bool stop = true;
@@ -83,7 +83,6 @@ void SOM_IterateOnce() {
         }
     }
     iter++;
-    is_som_finished = (iter > max_iter);
 }
 
 void SOM_Destroy() {

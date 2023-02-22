@@ -22,17 +22,18 @@
 #include <cstdlib> 
 #include <ctime> 
 #include <math.h>
-
+#include <thread>
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
-
-
+void createThread();
+void runSomIter();
+void keyPressFun(GLFWwindow* window, int key, int scancode, int action, int mods);
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 800;
 
 using namespace std;
-
+thread t1;
 int main(){
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -51,7 +52,7 @@ int main(){
     }
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    
+    glfwSetKeyCallback(window, keyPressFun);
     // glfwSetInputMode(window, GLFW_CURSOR,GLFW_CURSOR_DISABLED);
     if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)){
         std::cout<< "fialed to initialize GLAD" << std::endl;
@@ -99,10 +100,12 @@ int main(){
         }
         if(ImGui::Button("STSRT"))
         {
+            createThread();
             go = 1;
         } 
         if(ImGui::Button("STOP")){
             stop = !stop;
+            std::cout << "1" << std::endl;
         }
 
         ImGui::End();
@@ -114,9 +117,9 @@ int main(){
         ourShader.use();
 
 		MatrixStack model;
-        if(!is_som_finished && go == 1 && stop) {
-            SOM_IterateOnce();
-        }
+        // if(iter < max_iter && go == 1 && stop) {
+        //     SOM_IterateOnce();
+        // }
 
         for(int i = 0; i < map_width; i++){
             for(int j = 0; j < map_height; j++){
@@ -143,22 +146,39 @@ int main(){
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+    t1.join();
     glfwTerminate();
     SOM_Destroy();
     return 0;
 }
-
+void runSomIter(){
+    while(iter < max_iter && go == 1 && stop){
+        SOM_IterateOnce();
+    }
+}
+void createThread(){
+    if(t1.joinable()){
+        t1.join();
+    }
+    t1 = thread(runSomIter);
+}
 void processInput(GLFWwindow *window)
 {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-    if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS){
-        if(go == 0)
-            go = 1;
-    }
+  
 }
-
+void keyPressFun(GLFWwindow* window, int key, int scancode, int action, int mods){
+	if(key == GLFW_KEY_T && action == GLFW_PRESS)
+		stop = !stop;
+	
+	if(key == GLFW_KEY_G && action == GLFW_PRESS){
+		go = 1;
+		createThread();
+	}	
+	
+}
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
