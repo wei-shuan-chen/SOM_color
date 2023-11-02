@@ -2,14 +2,9 @@ cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 
 project("SOM")
 find_package(OpenGL REQUIRED)
-# find_package(glfw3 REQUIRED)
-# find_package(glm REQUIRED)
-# add_subdirectory(ext/glm)
 add_subdirectory(extern)
 add_executable(SOM)
 
-# include("cmake/BuildImgui.cmake")
-# include("cmake/BuildGlad.cmake") #P
 set_target_properties(SOM
     PROPERTIES
         CXX_STANDARD 17
